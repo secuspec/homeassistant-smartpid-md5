@@ -62,27 +62,48 @@ views:
                 name: Heizleistung
 
           # Continuous temperature history for stability reading.
+          # The y-axis auto-scales tightly onto the moving ±2 °C tolerance band
+          # (computed from the setpoint via transform), so drift is easy to read.
           - type: custom:apexcharts-card
             header:
               show: true
-              title: CH1 Temperaturverlauf
+              title: CH1 Temperaturverlauf (Stabilität ±2 °C)
               show_states: true
               colorize_states: true
             graph_span: 1h
             update_interval: 15s
             yaxis:
               - decimals: 1
-            all_series_config:
-              stroke_width: 2
+            apex_config:
+              stroke:
+                dashArray: [0, 0, 5, 5]
             series:
               - entity: sensor.smartpid_ch1_temp
                 name: Ist
                 curve: smooth
+                stroke_width: 3
+                color: "#ef5350"
               - entity: number.smartpid_ch1_setpoint
                 name: Soll
                 curve: stepline
+                stroke_width: 2
+                color: "#66bb6a"
+              - entity: number.smartpid_ch1_setpoint
+                name: +2 °C
+                curve: stepline
                 stroke_width: 1
-                opacity: 0.5
+                color: "#9e9e9e"
+                transform: "return x + 2;"
+                show:
+                  legend_value: false
+              - entity: number.smartpid_ch1_setpoint
+                name: -2 °C
+                curve: stepline
+                stroke_width: 1
+                color: "#9e9e9e"
+                transform: "return x - 2;"
+                show:
+                  legend_value: false
 
       # ---------------------------------------------------------------- CH2
       - type: grid
@@ -123,21 +144,40 @@ views:
           - type: custom:apexcharts-card
             header:
               show: true
-              title: CH2 Temperaturverlauf
+              title: CH2 Temperaturverlauf (Stabilität ±2 °C)
               show_states: true
               colorize_states: true
             graph_span: 1h
             update_interval: 15s
             yaxis:
               - decimals: 1
-            all_series_config:
-              stroke_width: 2
+            apex_config:
+              stroke:
+                dashArray: [0, 0, 5, 5]
             series:
               - entity: sensor.smartpid_ch2_temp
                 name: Ist
                 curve: smooth
+                stroke_width: 3
+                color: "#ef5350"
               - entity: number.smartpid_ch2_setpoint
                 name: Soll
                 curve: stepline
+                stroke_width: 2
+                color: "#66bb6a"
+              - entity: number.smartpid_ch2_setpoint
+                name: +2 °C
+                curve: stepline
                 stroke_width: 1
-                opacity: 0.5
+                color: "#9e9e9e"
+                transform: "return x + 2;"
+                show:
+                  legend_value: false
+              - entity: number.smartpid_ch2_setpoint
+                name: -2 °C
+                curve: stepline
+                stroke_width: 1
+                color: "#9e9e9e"
+                transform: "return x - 2;"
+                show:
+                  legend_value: false
