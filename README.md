@@ -6,6 +6,24 @@ publishes Home Assistant MQTT *discovery* configs on its behalf. Home Assistant'
 built-in **MQTT integration** then creates the entities and binds them to the
 SmartPID's own topics.
 
+## Use case — dual-boiler espresso machines
+
+This integration is built for **dual-boiler espresso machines**, where the
+SmartPID M5 PRO's two channels each control one boiler:
+
+- **CH1 → brew boiler** (Brühkessel) — the group-head temperature, typically
+  around 90–96 °C. Hence the default setpoint limit of **0–98 °C**.
+- **CH2 → steam/service boiler** (Dampfkessel) — for steam and hot water,
+  typically around 120–125 °C. Hence the default limit of **0–128 °C**.
+
+The per-channel temperature-history chart (with its setpoint ±2 °C tolerance band)
+is meant for exactly this: judging how tightly each boiler holds its target, which
+is what determines shot consistency.
+
+> I run this with my **La Marzocco Linea Classic** (a dual-boiler machine)
+> retrofitted with a SmartPID M5 PRO. The defaults and the dashboard are tuned for
+> that setup, but the limits are configurable for any dual-boiler machine.
+
 ## How it works
 
 - You enter the 14-character device **`<id>` hash** (e.g. `6e345245af4904`) in the
