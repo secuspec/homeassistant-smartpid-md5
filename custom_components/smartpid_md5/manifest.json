@@ -1,0 +1,11 @@
+{
+  "domain": "smartpid_md5",
+  "name": "SmartPID M5 PRO",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": ["mqtt"],
+  "documentation": "https://github.com/steffen/smartpid_md5",
+  "iot_class": "local_push",
+  "requirements": [],
+  "version": "0.1.0"
+}

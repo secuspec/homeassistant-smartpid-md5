@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartPID M5 PRO",
+        "description": "Gib die 14-stellige Geräte-ID ein (den <id>-Hash aus den MQTT-Topics, z. B. 6e345245af4904).",
+        "data": {
+          "device_id": "Geräte-ID (14 Hex-Zeichen)",
+          "name": "Gerätename"
+        }
+      }
+    },
+    "error": {
+      "invalid_id": "Die Geräte-ID muss aus genau 14 Hex-Zeichen bestehen (0-9, a-f)."
+    },
+    "abort": {
+      "already_configured": "Dieses SmartPID-Gerät ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartPID M5 PRO – Optionen",
+        "description": "Aktiviere die Bereinigung, um alle retained Discovery-Topics aus dem MQTT-Broker zu entfernen. Die Entities verschwinden dann aus Home Assistant. Deaktiviere sie wieder, um die Topics erneut zu veröffentlichen.",
+        "data": {
+          "cleanup": "Discovery-Topics aus dem Broker entfernen (Bereinigung)"
+        }
+      }
+    }
+  }
+}
