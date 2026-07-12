@@ -19,22 +19,57 @@ SmartPID's own topics.
   to delete a retained message. Removing the integration entirely does the same
   via `async_remove_entry`.
 
-## Requirements
+## Prerequisites
 
-- The Home Assistant **MQTT integration** must be configured and connected.
-- Its discovery prefix must be the default `homeassistant` (see `const.py`
-  `DISCOVERY_PREFIX` if you changed it).
+Both must be in place **before** you start:
 
-## Installation / deploy
+1. **MQTT integration** configured and connected
+   (*Settings → Devices & services → MQTT*). Its discovery prefix must be the
+   default `homeassistant` (MQTT → *Configure* → the prefix field). If you use a
+   different prefix, change `DISCOVERY_PREFIX` in `const.py` to match.
+2. **HACS** installed and working (*Settings → Devices & services → HACS*).
 
-Copy this folder into your Home Assistant config:
+## Installation
 
-```
-<config>/custom_components/smartpid_md5/
-```
+Follow the steps **in this order**.
 
-Then restart Home Assistant and add the integration via
-**Settings → Devices & Services → Add Integration → “SmartPID M5 PRO”**.
+### Step 1 — Find your device ID (the 14-character hash)
+
+Every topic contains a device-specific `<id>` such as `6e345245af4904`. To read it:
+
+1. *Settings → Devices & services → MQTT → Configure*.
+2. Under **Listen to a topic**, enter `smartpidM5/pro/#` and press **Start listening**.
+3. Power on the SmartPID. Incoming topics look like
+   `smartpidM5/pro/6e345245af4904/dynamic/CH1`.
+4. The **14 characters** between `smartpidM5/pro/` and the next `/` are your ID.
+
+### Step 2 — Install the integration via HACS (private repository)
+
+1. Open **HACS**.
+2. Top-right **⋮ menu → Custom repositories**.
+3. **Repository:** `https://github.com/secuspec/homeassistant-smartpid-md5`
+   **Type:** `Integration` → **Add**.
+   (Private repos work because HACS uses your GitHub account's token; it must be
+   the same account that owns the repo, or have read access to it.)
+4. Close the dialog, search HACS for **“SmartPID M5 PRO”**, open it → **Download**.
+5. **Restart Home Assistant** (*Settings → System → top-right ⋮ → Restart*).
+
+> HACS places the files in `custom_components/smartpid_md5/` for you — no manual
+> file copying.
+
+### Step 3 — Add and configure the integration
+
+1. *Settings → Devices & services → **Add integration*** → search
+   **“SmartPID M5 PRO”**.
+2. Enter the **14-character device ID** from Step 1 (and, optionally, a device
+   name) → **Submit**.
+3. The entities appear immediately. Optionally set the setpoint limits under
+   **Configure** (see *Configurable setpoint limits* below).
+
+### Manual alternative (without HACS)
+
+Copy the `custom_components/smartpid_md5/` folder into
+`<config>/custom_components/`, restart Home Assistant, then do Step 3.
 
 ## Entities (per channel CH1 / CH2)
 
@@ -76,28 +111,60 @@ discovery configs automatically.
 
 ## Dashboard
 
-`dashboards/smartpid-dashboard.yaml` (in the repo root) is a ready-to-paste
-Lovelace dashboard titled **“La Marzocco Linea Smartpid M5Pro”** (freely
-editable). Each channel gets its own section with:
+`dashboards/smartpid-dashboard.yaml` is a ready-made Lovelace dashboard titled
+**“La Marzocco Linea Smartpid M5Pro”** (freely editable). Each channel gets its
+own section: current-temperature tile, a **setpoint slider**, a **typeable
+numeric setpoint field**, run/mode/power, and a continuous **temperature-history
+chart** with a setpoint ±2 °C tolerance band for reading stability.
 
-- current temperature tile,
-- a **slider** for the setpoint (tile `numeric-input` feature),
-- a **typeable numeric input** for the setpoint (entities card, box mode),
-- run switch, mode and power,
-- a continuous **temperature-history chart** for stability reading.
+> **HACS cannot install a dashboard config.** The HACS “Dashboard” type only
+> installs frontend *cards* (JavaScript), not a finished dashboard. So the
+> integration and the ApexCharts card install via HACS with no file copying, but
+> the dashboard itself is pasted **once** into the UI (Step 3 below). This is a
+> HACS limitation, not an oversight.
 
-**Prerequisite:** the history charts use the **ApexCharts card** — install it via
-HACS (*HACS → Frontend → “ApexCharts Card”*) before loading the dashboard.
+### Step 1 — Install the ApexCharts card via HACS
 
-Use it by creating a new dashboard → *Raw configuration editor* → paste the file,
-or reference it from `configuration.yaml` in YAML mode.
+The history charts need it.
 
-> After adding the integration, confirm the generated entity ids in
-> **Developer Tools → States** (they should be `sensor.smartpid_ch1_temp`,
-> `number.smartpid_ch1_setpoint`, `switch.smartpid_ch1_run`, …). If HA generated
-> different ids — e.g. because the device was added before this version and the
-> old name-based ids stuck — either delete and re-add the device, or adjust the
-> entity references in the dashboard YAML.
+1. Open **HACS** and search for **“ApexCharts Card”** (it is in the default HACS
+   store — no custom repository needed).
+2. Open it → **Download** → **Restart Home Assistant** (or reload resources).
+
+> If your dashboards run in **YAML mode**, also add the resource manually:
+> *Settings → Dashboards → ⋮ → Resources →* `/hacsfiles/apexcharts-card/apexcharts-card.js`,
+> type **JavaScript Module**. In the default (UI/storage) mode HACS registers it
+> automatically.
+
+### Step 2 — Confirm the entity IDs
+
+The dashboard references fixed entity IDs. After adding the integration, open
+**Developer Tools → States** and confirm these ten exist exactly:
+
+```
+sensor.smartpid_ch1_temp      sensor.smartpid_ch2_temp
+number.smartpid_ch1_setpoint  number.smartpid_ch2_setpoint
+switch.smartpid_ch1_run       switch.smartpid_ch2_run
+sensor.smartpid_ch1_mode      sensor.smartpid_ch2_mode
+sensor.smartpid_ch1_pwm       sensor.smartpid_ch2_pwm
+```
+
+If some have a `_2` suffix or a different name (e.g. the device was added with an
+**older version** and the old IDs stuck in the registry), **delete the device and
+re-add it** (Installation Step 3) so the deterministic IDs are generated — or edit
+the entity references in the dashboard YAML to match.
+
+### Step 3 — Add the dashboard
+
+1. *Settings → Dashboards → **Add dashboard** → New dashboard from scratch*, give
+   it any title → **Create**.
+2. Open it → top-right **✏️ Edit** → **⋮ → Raw configuration editor**.
+3. **Select all, delete**, then paste the full contents of
+   [`dashboards/smartpid-dashboard.yaml`](https://github.com/secuspec/homeassistant-smartpid-md5/blob/main/dashboards/smartpid-dashboard.yaml)
+   → **Save**.
+
+The dashboard’s own `title:` line pre-fills **“La Marzocco Linea Smartpid
+M5Pro”**; rename it freely.
 
 ## Notes and known limitations
 
