@@ -53,6 +53,52 @@ Then restart Home Assistant and add the integration via
 Plus device-level diagnostics (IP, SSID, Serial) from `status` and the last
 `events/standard` / `events/advanced` event.
 
+Every entity gets a deterministic `object_id` (`smartpid_<slug>`), so the bundled
+dashboard can reference stable entity ids such as `number.smartpid_ch1_setpoint`.
+This is unique for a **single** SmartPID device; a second device would collide and
+HA would suffix the ids.
+
+## Configurable setpoint limits
+
+**Settings → Devices & Services → SmartPID M5 PRO → Configure** exposes the
+per-channel setpoint range:
+
+| Option | Default |
+| --- | --- |
+| CH1 minimum / maximum | `0` / `98` °C |
+| CH2 minimum / maximum | `0` / `128` °C |
+
+These bound the setpoint `number` entity, so both the dashboard slider and the
+numeric input box honor them; the input field won't submit an out-of-range value.
+(The bound is enforced in the frontend against the entity's `min`/`max`; the
+device firmware accepts a wider range.) Changing the limits re-publishes the
+discovery configs automatically.
+
+## Dashboard
+
+`dashboards/smartpid-dashboard.yaml` (in the repo root) is a ready-to-paste
+Lovelace dashboard titled **“La Marzocco Linea Smartpid M5Pro”** (freely
+editable). Each channel gets its own section with:
+
+- current temperature tile,
+- a **slider** for the setpoint (tile `numeric-input` feature),
+- a **typeable numeric input** for the setpoint (entities card, box mode),
+- run switch, mode and power,
+- a continuous **temperature-history chart** for stability reading.
+
+**Prerequisite:** the history charts use the **ApexCharts card** — install it via
+HACS (*HACS → Frontend → “ApexCharts Card”*) before loading the dashboard.
+
+Use it by creating a new dashboard → *Raw configuration editor* → paste the file,
+or reference it from `configuration.yaml` in YAML mode.
+
+> After adding the integration, confirm the generated entity ids in
+> **Developer Tools → States** (they should be `sensor.smartpid_ch1_temp`,
+> `number.smartpid_ch1_setpoint`, `switch.smartpid_ch1_run`, …). If HA generated
+> different ids — e.g. because the device was added before this version and the
+> old name-based ids stuck — either delete and re-add the device, or adjust the
+> entity references in the dashboard YAML.
+
 ## Notes and known limitations
 
 - **Two payload shapes.** `dynamic/CHx` carries `SP`, `mode`, `pwm`, `countdown`,

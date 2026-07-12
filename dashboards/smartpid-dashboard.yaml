@@ -1,0 +1,143 @@
+# SmartPID M5 PRO — Lovelace dashboard
+#
+# Two ways to use this:
+#   A) UI: create a new dashboard → ⋮ → "Edit dashboard" → ⋮ → "Raw configuration
+#      editor" → paste everything below.
+#   B) YAML mode: reference this file from configuration.yaml under
+#      `lovelace:` → `dashboards:`.
+#
+# Requirements:
+#   - The SmartPID M5 PRO integration must be added (it creates the entities with
+#     deterministic ids: sensor.smartpid_ch1_temp, number.smartpid_ch1_setpoint, …).
+#   - The ApexCharts card must be installed via HACS
+#     (HACS → Frontend → "ApexCharts Card"). The temperature-history cards use it.
+#
+# The title is pre-filled and freely editable.
+title: La Marzocco Linea Smartpid M5Pro
+views:
+  - title: SmartPID
+    path: smartpid
+    icon: mdi:coffee-maker
+    type: sections
+    max_columns: 2
+    sections:
+      # ---------------------------------------------------------------- CH1
+      - type: grid
+        cards:
+          - type: heading
+            heading: Channel 1
+            heading_style: title
+            icon: mdi:coffee
+
+          - type: tile
+            entity: sensor.smartpid_ch1_temp
+            name: Ist-Temperatur
+            color: orange
+            vertical: false
+
+          # Setpoint via slider (0–98 °C by default; bounds come from the entity,
+          # which is configured in the integration options).
+          - type: tile
+            entity: number.smartpid_ch1_setpoint
+            name: Sollwert (Slider)
+            icon: mdi:target
+            features:
+              - type: numeric-input
+                style: slider
+
+          # Setpoint via keyboard entry. The number entity is in "box" mode, so
+          # the entities card shows a typeable input field. Values outside the
+          # configured min/max are not accepted by the field.
+          - type: entities
+            title: Sollwert – numerische Eingabe
+            state_color: true
+            entities:
+              - entity: number.smartpid_ch1_setpoint
+                name: Sollwert eingeben
+              - entity: switch.smartpid_ch1_run
+                name: Prozess
+              - entity: sensor.smartpid_ch1_mode
+                name: Modus
+              - entity: sensor.smartpid_ch1_pwm
+                name: Heizleistung
+
+          # Continuous temperature history for stability reading.
+          - type: custom:apexcharts-card
+            header:
+              show: true
+              title: CH1 Temperaturverlauf
+              show_states: true
+              colorize_states: true
+            graph_span: 1h
+            update_interval: 15s
+            yaxis:
+              - decimals: 1
+            all_series_config:
+              stroke_width: 2
+            series:
+              - entity: sensor.smartpid_ch1_temp
+                name: Ist
+                curve: smooth
+              - entity: number.smartpid_ch1_setpoint
+                name: Soll
+                curve: stepline
+                stroke_width: 1
+                opacity: 0.5
+
+      # ---------------------------------------------------------------- CH2
+      - type: grid
+        cards:
+          - type: heading
+            heading: Channel 2
+            heading_style: title
+            icon: mdi:kettle-steam
+
+          - type: tile
+            entity: sensor.smartpid_ch2_temp
+            name: Ist-Temperatur
+            color: orange
+            vertical: false
+
+          # Setpoint via slider (0–128 °C by default).
+          - type: tile
+            entity: number.smartpid_ch2_setpoint
+            name: Sollwert (Slider)
+            icon: mdi:target
+            features:
+              - type: numeric-input
+                style: slider
+
+          - type: entities
+            title: Sollwert – numerische Eingabe
+            state_color: true
+            entities:
+              - entity: number.smartpid_ch2_setpoint
+                name: Sollwert eingeben
+              - entity: switch.smartpid_ch2_run
+                name: Prozess
+              - entity: sensor.smartpid_ch2_mode
+                name: Modus
+              - entity: sensor.smartpid_ch2_pwm
+                name: Heizleistung
+
+          - type: custom:apexcharts-card
+            header:
+              show: true
+              title: CH2 Temperaturverlauf
+              show_states: true
+              colorize_states: true
+            graph_span: 1h
+            update_interval: 15s
+            yaxis:
+              - decimals: 1
+            all_series_config:
+              stroke_width: 2
+            series:
+              - entity: sensor.smartpid_ch2_temp
+                name: Ist
+                curve: smooth
+              - entity: number.smartpid_ch2_setpoint
+                name: Soll
+                curve: stepline
+                stroke_width: 1
+                opacity: 0.5

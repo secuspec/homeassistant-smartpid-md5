@@ -22,7 +22,22 @@ MODEL = "M5 PRO"
 # Two physical channels on the PRO controller.
 CHANNELS = ("CH1", "CH2")
 
-# Command temperature range for PRO in °C, per the MQTT spec ([-200, 450]).
-TEMP_MIN = -200
-TEMP_MAX = 450
-TEMP_STEP = 0.1
+# Per-channel setpoint limits (°C). These bound the setpoint number entity (and
+# therefore the dashboard slider + input box). Configurable via the options flow,
+# pre-filled with the machine's documented maxima. The device itself accepts a
+# much wider range ([-200, 450]); these are operating limits, not the hard cap.
+CONF_CH1_MIN = "ch1_min"
+CONF_CH1_MAX = "ch1_max"
+CONF_CH2_MIN = "ch2_min"
+CONF_CH2_MAX = "ch2_max"
+
+DEFAULT_CH1_MIN = 0.0
+DEFAULT_CH1_MAX = 98.0
+DEFAULT_CH2_MIN = 0.0
+DEFAULT_CH2_MAX = 128.0
+
+SETPOINT_STEP = 0.1
+
+# Prefix for the deterministic object_id / entity_id of every entity, so a
+# pre-built dashboard can reference e.g. number.smartpid_ch1_setpoint reliably.
+OBJECT_ID_PREFIX = "smartpid"

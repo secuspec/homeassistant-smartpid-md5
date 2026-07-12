@@ -9,7 +9,20 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import CONF_CLEANUP, CONF_DEVICE_ID, CONF_NAME, DEFAULT_NAME
+from .const import (
+    CONF_CH1_MAX,
+    CONF_CH1_MIN,
+    CONF_CH2_MAX,
+    CONF_CH2_MIN,
+    CONF_CLEANUP,
+    CONF_DEVICE_ID,
+    CONF_NAME,
+    DEFAULT_CH1_MAX,
+    DEFAULT_CH1_MIN,
+    DEFAULT_CH2_MAX,
+    DEFAULT_CH2_MIN,
+    DEFAULT_NAME,
+)
 from .discovery import (
     async_clear_discovery,
     async_publish_discovery,
@@ -19,6 +32,21 @@ from .discovery import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _limits_from_entry(entry: ConfigEntry) -> dict[str, tuple[float, float]]:
+    """Read the per-channel setpoint limits from the entry options."""
+    opts = entry.options
+    return {
+        "CH1": (
+            opts.get(CONF_CH1_MIN, DEFAULT_CH1_MIN),
+            opts.get(CONF_CH1_MAX, DEFAULT_CH1_MAX),
+        ),
+        "CH2": (
+            opts.get(CONF_CH2_MIN, DEFAULT_CH2_MIN),
+            opts.get(CONF_CH2_MAX, DEFAULT_CH2_MAX),
+        ),
+    }
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Publish (or, in cleanup mode, remove) the SmartPID discovery topics."""
     if not await mqtt.async_wait_for_mqtt_client(hass):
@@ -26,7 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     device_id = entry.data[CONF_DEVICE_ID]
     name = entry.data.get(CONF_NAME, DEFAULT_NAME)
-    messages = build_discovery_messages(device_id, name)
+    messages = build_discovery_messages(device_id, name, _limits_from_entry(entry))
 
     if entry.options.get(CONF_CLEANUP, False):
         _LOGGER.info(

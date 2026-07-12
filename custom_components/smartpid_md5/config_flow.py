@@ -15,7 +15,21 @@ try:  # HA >= 2024.4
 except ImportError:  # older cores
     from homeassistant.data_entry_flow import FlowResult as ConfigFlowResult
 
-from .const import CONF_CLEANUP, CONF_DEVICE_ID, CONF_NAME, DEFAULT_NAME, DOMAIN
+from .const import (
+    CONF_CH1_MAX,
+    CONF_CH1_MIN,
+    CONF_CH2_MAX,
+    CONF_CH2_MIN,
+    CONF_CLEANUP,
+    CONF_DEVICE_ID,
+    CONF_NAME,
+    DEFAULT_CH1_MAX,
+    DEFAULT_CH1_MIN,
+    DEFAULT_CH2_MAX,
+    DEFAULT_CH2_MIN,
+    DEFAULT_NAME,
+    DOMAIN,
+)
 
 # The <id> is the 14-character hex hash from the MQTT topics (e.g. 6e345245af4904).
 _ID_RE = re.compile(r"^[0-9a-f]{14}$")
@@ -69,15 +83,35 @@ class SmartpidOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            if user_input[CONF_CH1_MIN] >= user_input[CONF_CH1_MAX]:
+                errors["base"] = "ch1_range"
+            elif user_input[CONF_CH2_MIN] >= user_input[CONF_CH2_MAX]:
+                errors["base"] = "ch2_range"
+            else:
+                return self.async_create_entry(title="", data=user_input)
 
+        opts = self._entry.options
         schema = vol.Schema(
             {
                 vol.Optional(
-                    CONF_CLEANUP,
-                    default=self._entry.options.get(CONF_CLEANUP, False),
-                ): bool
+                    CONF_CH1_MIN, default=opts.get(CONF_CH1_MIN, DEFAULT_CH1_MIN)
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CH1_MAX, default=opts.get(CONF_CH1_MAX, DEFAULT_CH1_MAX)
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CH2_MIN, default=opts.get(CONF_CH2_MIN, DEFAULT_CH2_MIN)
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CH2_MAX, default=opts.get(CONF_CH2_MAX, DEFAULT_CH2_MAX)
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CLEANUP, default=opts.get(CONF_CLEANUP, False)
+                ): bool,
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(
+            step_id="init", data_schema=schema, errors=errors
+        )

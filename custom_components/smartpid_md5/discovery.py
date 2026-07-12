@@ -17,16 +17,25 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     CHANNELS,
+    DEFAULT_CH1_MAX,
+    DEFAULT_CH1_MIN,
+    DEFAULT_CH2_MAX,
+    DEFAULT_CH2_MIN,
     DISCOVERY_PREFIX,
     MANUFACTURER,
     MODEL,
-    TEMP_MAX,
-    TEMP_MIN,
-    TEMP_STEP,
+    OBJECT_ID_PREFIX,
+    SETPOINT_STEP,
     TOPIC_BASE,
 )
 
 ORIGIN = {"name": "smartpid_md5"}
+
+# Default per-channel setpoint limits, used when the caller passes none.
+DEFAULT_LIMITS: dict[str, tuple[float, float]] = {
+    "CH1": (DEFAULT_CH1_MIN, DEFAULT_CH1_MAX),
+    "CH2": (DEFAULT_CH2_MIN, DEFAULT_CH2_MAX),
+}
 
 
 def _device_block(device_id: str, name: str) -> dict[str, Any]:
@@ -38,15 +47,27 @@ def _device_block(device_id: str, name: str) -> dict[str, Any]:
     }
 
 
-def build_discovery_messages(device_id: str, name: str) -> list[dict[str, Any]]:
+def build_discovery_messages(
+    device_id: str,
+    name: str,
+    limits: dict[str, tuple[float, float]] | None = None,
+) -> list[dict[str, Any]]:
     """Return a list of ``{"topic", "payload"}`` discovery messages.
+
+    ``limits`` maps a channel ("CH1"/"CH2") to its ``(min, max)`` setpoint range;
+    it bounds the setpoint number entity (and thus the dashboard slider + box).
+    When omitted the documented per-channel maxima are used.
 
     Note on ``value_template`` defaults: the PRO ``dynamic/CHx`` payload has two
     shapes. In *monitor* mode only ``temp``/``unit``/``runmode`` are present; the
     fields ``SP``/``mode``/``pwm``/``countdown``/``countup`` appear only in *run*
     mode. Every optional field is therefore guarded with ``default('')`` so the
     entity is not fed a stray value when the field is absent.
+
+    Every entity also carries a deterministic ``object_id`` (``smartpid_<slug>``)
+    so the bundled dashboard can reference stable entity_ids.
     """
+    limits = limits or DEFAULT_LIMITS
     base = f"{TOPIC_BASE}/{device_id}"
     dev_ident = f"smartpidM5_pro_{device_id}"
     device = _device_block(device_id, name)
@@ -58,6 +79,7 @@ def build_discovery_messages(device_id: str, name: str) -> list[dict[str, Any]]:
         full = {
             **payload,
             "unique_id": f"{dev_ident}_{slug}",
+            "object_id": f"{OBJECT_ID_PREFIX}_{slug}",
             "device": device,
             "origin": ORIGIN,
         }
@@ -68,6 +90,7 @@ def build_discovery_messages(device_id: str, name: str) -> list[dict[str, Any]]:
     for ch in CHANNELS:
         cl = ch.lower()
         dyn = f"{base}/dynamic/{ch}"
+        ch_min, ch_max = limits.get(ch, DEFAULT_LIMITS[ch])
 
         add("sensor", f"{cl}_temp", {
             "name": f"{ch} Temperature",
@@ -124,9 +147,9 @@ def build_discovery_messages(device_id: str, name: str) -> list[dict[str, Any]]:
             "value_template": "{{ value_json.SP | default('') }}",
             "command_topic": cmd_topic,
             "command_template": '{"' + ch + ' SP": {{ value }} }',
-            "min": TEMP_MIN,
-            "max": TEMP_MAX,
-            "step": TEMP_STEP,
+            "min": ch_min,
+            "max": ch_max,
+            "step": SETPOINT_STEP,
             "mode": "box",
             "unit_of_measurement": "°C",
             "device_class": "temperature",

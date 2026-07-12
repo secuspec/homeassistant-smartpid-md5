@@ -21,11 +21,19 @@
     "step": {
       "init": {
         "title": "SmartPID M5 PRO options",
-        "description": "Enable cleanup to remove all retained discovery topics from the MQTT broker. The entities will disappear from Home Assistant. Disable it again to re-publish them.",
+        "description": "Set the per-channel setpoint limits (°C) that bound the slider and input box. Enable cleanup to remove all retained discovery topics from the MQTT broker.",
         "data": {
+          "ch1_min": "CH1 minimum setpoint (°C)",
+          "ch1_max": "CH1 maximum setpoint (°C)",
+          "ch2_min": "CH2 minimum setpoint (°C)",
+          "ch2_max": "CH2 maximum setpoint (°C)",
           "cleanup": "Remove discovery topics from broker (cleanup)"
         }
       }
+    },
+    "error": {
+      "ch1_range": "CH1 minimum must be lower than CH1 maximum.",
+      "ch2_range": "CH2 minimum must be lower than CH2 maximum."
     }
   }
 }
