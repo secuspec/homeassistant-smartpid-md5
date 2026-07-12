@@ -68,17 +68,15 @@ class SmartpidConfigFlow(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
-        return SmartpidOptionsFlow(config_entry)
+        return SmartpidOptionsFlow()
 
 
 class SmartpidOptionsFlow(OptionsFlow):
-    """Expose the cleanup toggle that removes the retained discovery topics."""
+    """Expose the setpoint limits and the discovery-topic cleanup toggle.
 
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        # Store the entry privately instead of touching the reserved
-        # ``self.config_entry`` attribute, which is set-deprecated on newer cores
-        # and absent on plain OptionsFlow in some 2024 releases.
-        self._entry = config_entry
+    Canonical current pattern: no custom ``__init__``; the framework provides
+    ``self.config_entry`` automatically.
+    """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -92,7 +90,7 @@ class SmartpidOptionsFlow(OptionsFlow):
             else:
                 return self.async_create_entry(title="", data=user_input)
 
-        opts = self._entry.options
+        opts = self.config_entry.options
         schema = vol.Schema(
             {
                 vol.Optional(
