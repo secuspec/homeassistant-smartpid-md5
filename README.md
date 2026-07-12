@@ -84,14 +84,13 @@ Every topic contains a device-specific `<id>` such as `a1b2c3d4e5f6a7`. To read 
    `smartpidM5/pro/a1b2c3d4e5f6a7/dynamic/CH1`.
 4. The **14 characters** between `smartpidM5/pro/` and the next `/` are your ID.
 
-### Step 2 — Install the integration via HACS (private repository)
+### Step 2 — Install the integration via HACS (custom repository)
 
 1. Open **HACS**.
 2. Top-right **⋮ menu → Custom repositories**.
 3. **Repository:** `https://github.com/secuspec/homeassistant-smartpid-md5`
    **Type:** `Integration` → **Add**.
-   (Private repos work because HACS uses your GitHub account's token; it must be
-   the same account that owns the repo, or have read access to it.)
+   (The repository must be **public** — HACS cannot access private repositories.)
 4. Close the dialog, search HACS for **“SmartPID M5 PRO”**, open it → **Download**.
 5. **Restart Home Assistant** (*Settings → System → top-right ⋮ → Restart*).
 
