@@ -31,7 +31,7 @@ from .const import (
     DOMAIN,
 )
 
-# The <id> is the 14-character hex hash from the MQTT topics (e.g. 6e345245af4904).
+# The <id> is the 14-character hex hash from the MQTT topics (e.g. a1b2c3d4e5f6a7).
 _ID_RE = re.compile(r"^[0-9a-f]{14}$")
 
 

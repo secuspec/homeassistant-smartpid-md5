@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "SmartPID M5 PRO",
-        "description": "Gib die 14-stellige Geräte-ID ein (den <id>-Hash aus den MQTT-Topics, z. B. 6e345245af4904).",
+        "description": "Gib die 14-stellige Geräte-ID ein (den <id>-Hash aus den MQTT-Topics, z. B. a1b2c3d4e5f6a7).",
         "data": {
           "device_id": "Geräte-ID (14 Hex-Zeichen)",
           "name": "Gerätename"

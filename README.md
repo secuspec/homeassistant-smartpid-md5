@@ -26,7 +26,7 @@ is what determines shot consistency.
 
 ## How it works
 
-- You enter the 14-character device **`<id>` hash** (e.g. `6e345245af4904`) in the
+- You enter the 14-character device **`<id>` hash** (e.g. `a1b2c3d4e5f6a7`) in the
   config flow. That is the only variable part of the topics — `smartpidM5/pro` is
   fixed for the PRO model. Both the topic path and the device `identifiers` /
   `unique_id` are derived from it.
@@ -76,12 +76,12 @@ Follow the steps **in this order**.
 
 ### Step 1 — Find your device ID (the 14-character hash)
 
-Every topic contains a device-specific `<id>` such as `6e345245af4904`. To read it:
+Every topic contains a device-specific `<id>` such as `a1b2c3d4e5f6a7`. To read it:
 
 1. *Settings → Devices & services → MQTT → Configure*.
 2. Under **Listen to a topic**, enter `smartpidM5/pro/#` and press **Start listening**.
 3. Power on the SmartPID. Incoming topics look like
-   `smartpidM5/pro/6e345245af4904/dynamic/CH1`.
+   `smartpidM5/pro/a1b2c3d4e5f6a7/dynamic/CH1`.
 4. The **14 characters** between `smartpidM5/pro/` and the next `/` are your ID.
 
 ### Step 2 — Install the integration via HACS (private repository)
