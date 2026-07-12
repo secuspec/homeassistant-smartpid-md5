@@ -39,13 +39,36 @@ is what determines shot consistency.
 
 ## Prerequisites
 
-Both must be in place **before** you start:
+All three must be in place **before** you start:
 
-1. **MQTT integration** configured and connected
+1. **An MQTT broker, reachable by both Home Assistant and the SmartPID.**
+   The recommended setup is to run the broker **directly on the Home Assistant
+   host** via the **Mosquitto broker add-on** (*Settings → Add-ons → Add-on Store
+   → Mosquitto broker*). Home Assistant's **MQTT integration** (already required
+   below) then connects to it — so device, broker and HA all live on the same
+   host and network.
+2. **MQTT integration** configured and connected
    (*Settings → Devices & services → MQTT*). Its discovery prefix must be the
    default `homeassistant` (MQTT → *Configure* → the prefix field). If you use a
    different prefix, change `DISCOVERY_PREFIX` in `const.py` to match.
-2. **HACS** installed and working (*Settings → Devices & services → HACS*).
+3. **HACS** installed and working (*Settings → Devices & services → HACS*).
+
+### Point the SmartPID at your broker
+
+The integration only listens; **the SmartPID itself must publish to your broker.**
+In the SmartPID M5 PRO's own configuration (its on-device / Wi-Fi setup):
+
+- Set the **MQTT broker address** to your broker — i.e. the **IP address of the
+  Home Assistant host** if you run Mosquitto there (e.g. `192.168.1.50`), port
+  **`1883`** for a standard unencrypted connection.
+- Set the **MQTT username and password** to match your broker's credentials —
+  **required if** the broker enforces authentication (the Mosquitto add-on does by
+  default, using a Home Assistant user you create for it). Leave them empty only if
+  the broker explicitly allows anonymous access.
+
+If the address or credentials are wrong, the device connects to nothing and no
+entities will ever receive data — this is the single most common cause of a
+"working" integration with no values.
 
 ## Installation
 
