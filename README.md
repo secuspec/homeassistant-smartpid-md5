@@ -135,10 +135,12 @@ Copy the `custom_components/smartpid_md5/` folder into
 Plus device-level diagnostics (IP, SSID, Serial) from `status` and the last
 `events/standard` / `events/advanced` event.
 
-Every entity gets a deterministic `object_id` (`smartpid_<slug>`), so the bundled
-dashboard can reference stable entity ids such as `number.smartpid_ch1_setpoint`.
-This is unique for a **single** SmartPID device; a second device would collide and
-HA would suffix the ids.
+Every entity gets a deterministic entity id (`<domain>.smartpid_<slug>`, e.g.
+`number.smartpid_ch1_setpoint`), pinned via the MQTT discovery `default_entity_id`
+key so the bundled dashboard can reference stable ids. This is unique for a
+**single** SmartPID device; a second device would collide and HA would suffix the
+ids. (Older integration releases used the `object_id` key, which current Home
+Assistant ignores — see the migration note under *Confirm the entity IDs*.)
 
 ## Configurable setpoint limits
 
@@ -196,10 +198,24 @@ sensor.smartpid_ch1_mode      sensor.smartpid_ch2_mode
 sensor.smartpid_ch1_pwm       sensor.smartpid_ch2_pwm
 ```
 
-If some have a `_2` suffix or a different name (e.g. the device was added with an
-**older version** and the old IDs stuck in the registry), **delete the device and
-re-add it** (Installation Step 3) so the deterministic IDs are generated — or edit
-the entity references in the dashboard YAML to match.
+If instead you see names like `sensor.smartpid_m5_pro_ch1_temperature`, or a `_2`
+suffix, the entities were first registered by an **integration release ≤ 0.6.0**,
+which pinned ids via the old `object_id` discovery key that current Home Assistant
+**ignores** — so HA fell back to name-derived ids and stored them in the registry.
+Since **0.7.0** the ids are pinned via `default_entity_id`, but that only applies
+to entities HA registers *fresh*: existing registry entries keep their old ids.
+
+**Migration — do this once after updating:**
+
+1. *Settings → Devices & Services → SmartPID M5 PRO → the device →* **⋮ → Delete**.
+2. *Add integration →* re-add with the same 14-character device ID
+   (Installation Step 3). HA now registers the entities with the correct
+   `smartpid_<slug>` ids.
+3. Re-check the ten ids above.
+
+(Alternatively, rename each entity's id by hand under *Settings → Entities*, or
+edit the dashboard YAML to match your existing ids — but deleting and re-adding is
+cleaner.)
 
 ### Step 3 — Add the dashboard
 

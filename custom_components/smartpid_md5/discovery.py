@@ -66,8 +66,9 @@ def build_discovery_messages(
     — which HA reads as *unknown*; an empty string would be an invalid numeric
     state and get logged and rejected. Text-only fields keep ``default('')``.
 
-    Every entity also carries a deterministic ``object_id`` (``smartpid_<slug>``)
-    so the bundled dashboard can reference stable entity_ids.
+    Every entity also carries a deterministic ``default_entity_id``
+    (``<component>.smartpid_<slug>``) so the bundled dashboard can reference
+    stable entity_ids. (Current HA ignores the older ``object_id`` discovery key.)
     """
     limits = limits or DEFAULT_LIMITS
     base = f"{TOPIC_BASE}/{device_id}"
@@ -78,10 +79,16 @@ def build_discovery_messages(
     messages: list[dict[str, Any]] = []
 
     def add(component: str, slug: str, payload: dict[str, Any]) -> None:
+        # ``default_entity_id`` pins the entity_id deterministically (so the
+        # bundled dashboard can reference stable ids). It must be the *full*
+        # dotted entity_id — HA does ``default_entity_id.partition(".")`` and uses
+        # the part after the dot, so a bare object id would yield an empty
+        # object_id and silently break every entity. The legacy ``object_id`` key
+        # this replaced is ignored by current HA MQTT discovery.
         full = {
             **payload,
             "unique_id": f"{dev_ident}_{slug}",
-            "object_id": f"{OBJECT_ID_PREFIX}_{slug}",
+            "default_entity_id": f"{component}.{OBJECT_ID_PREFIX}_{slug}",
             "device": device,
             "origin": ORIGIN,
         }

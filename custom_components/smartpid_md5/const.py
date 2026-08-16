@@ -41,6 +41,7 @@ DEFAULT_CH2_MAX = 128.0
 
 SETPOINT_STEP = 0.1
 
-# Prefix for the deterministic object_id / entity_id of every entity, so a
-# pre-built dashboard can reference e.g. number.smartpid_ch1_setpoint reliably.
+# Prefix for the deterministic entity_id of every entity (emitted via the MQTT
+# discovery ``default_entity_id`` key), so a pre-built dashboard can reference
+# e.g. number.smartpid_ch1_setpoint reliably.
 OBJECT_ID_PREFIX = "smartpid"
