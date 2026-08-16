@@ -6,6 +6,9 @@ DOMAIN = "smartpid_md5"
 
 CONF_DEVICE_ID = "device_id"
 CONF_NAME = "name"
+# Legacy option key. Cleanup used to be a persistent boolean option; it is now a
+# one-shot button entity (see button.py). This constant is kept only so setup can
+# strip the stale flag from older config entries during migration.
 CONF_CLEANUP = "cleanup"
 
 DEFAULT_NAME = "SmartPID M5 PRO"

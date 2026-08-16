@@ -12,5 +12,5 @@
   "issue_tracker": "https://github.com/secuspec/homeassistant-smartpid-md5/issues",
   "iot_class": "local_push",
   "requirements": [],
-  "version": "0.5.0"
+  "version": "0.6.0"
 }

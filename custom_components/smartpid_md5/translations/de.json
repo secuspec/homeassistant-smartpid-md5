@@ -21,19 +21,28 @@
     "step": {
       "init": {
         "title": "SmartPID M5 PRO – Optionen",
-        "description": "Lege die Sollwert-Grenzen pro Kanal (°C) fest, die Slider und Eingabefeld begrenzen. Aktiviere die Bereinigung, um alle retained Discovery-Topics aus dem MQTT-Broker zu entfernen.",
+        "description": "Lege die Sollwert-Grenzen pro Kanal (°C) fest, die Slider und Eingabefeld begrenzen. Zum Entfernen oder erneuten Veröffentlichen der retained Discovery-Topics die Buttons auf der Geräteseite nutzen.",
         "data": {
           "ch1_min": "CH1 minimaler Sollwert (°C)",
           "ch1_max": "CH1 maximaler Sollwert (°C)",
           "ch2_min": "CH2 minimaler Sollwert (°C)",
-          "ch2_max": "CH2 maximaler Sollwert (°C)",
-          "cleanup": "Discovery-Topics aus dem Broker entfernen (Bereinigung)"
+          "ch2_max": "CH2 maximaler Sollwert (°C)"
         }
       }
     },
     "error": {
       "ch1_range": "CH1-Minimum muss kleiner als CH1-Maximum sein.",
       "ch2_range": "CH2-Minimum muss kleiner als CH2-Maximum sein."
+    }
+  },
+  "entity": {
+    "button": {
+      "republish_discovery": {
+        "name": "Discovery-Topics neu veröffentlichen"
+      },
+      "remove_discovery": {
+        "name": "Discovery-Topics entfernen"
+      }
     }
   }
 }

@@ -21,19 +21,28 @@
     "step": {
       "init": {
         "title": "SmartPID M5 PRO options",
-        "description": "Set the per-channel setpoint limits (°C) that bound the slider and input box. Enable cleanup to remove all retained discovery topics from the MQTT broker.",
+        "description": "Set the per-channel setpoint limits (°C) that bound the slider and input box. To remove or re-publish the retained discovery topics, use the buttons on the device page.",
         "data": {
           "ch1_min": "CH1 minimum setpoint (°C)",
           "ch1_max": "CH1 maximum setpoint (°C)",
           "ch2_min": "CH2 minimum setpoint (°C)",
-          "ch2_max": "CH2 maximum setpoint (°C)",
-          "cleanup": "Remove discovery topics from broker (cleanup)"
+          "ch2_max": "CH2 maximum setpoint (°C)"
         }
       }
     },
     "error": {
       "ch1_range": "CH1 minimum must be lower than CH1 maximum.",
       "ch2_range": "CH2 minimum must be lower than CH2 maximum."
+    }
+  },
+  "entity": {
+    "button": {
+      "republish_discovery": {
+        "name": "Republish discovery topics"
+      },
+      "remove_discovery": {
+        "name": "Remove discovery topics"
+      }
     }
   }
 }

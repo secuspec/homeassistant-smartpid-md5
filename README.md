@@ -32,10 +32,17 @@ is what determines shot consistency.
   `unique_id` are derived from it.
 - On setup the integration publishes all discovery configs **retained** to
   `homeassistant/<component>/smartpidM5_pro_<id>/<object>/config`.
-- **Cleanup** (Options → *Remove discovery topics*) clears every discovery config
-  by publishing an **empty payload with `retain=True`** — the spec-compliant way
-  to delete a retained message. Removing the integration entirely does the same
-  via `async_remove_entry`.
+- **Remove / Republish discovery topics** — two buttons on the device page. *Remove*
+  clears every discovery config by publishing an **empty payload with `retain=True`**
+  (the spec-compliant way to delete a retained message); *Republish* re-sends them.
+  A normal setup/reload always re-publishes, and removing the integration entirely
+  clears everything via `async_remove_entry`.
+
+  > **Upgrading from ≤ 0.5.x:** cleanup used to be a persistent *option* checkbox.
+  > Because it was re-evaluated on every startup, an entry left with it enabled
+  > would wipe its own discovery topics again on each restart/reinstall — the
+  > entities then showed up but stayed **unavailable / un-enableable**. It is now a
+  > one-shot button, and the stale option is stripped automatically on first load.
 
 ## Prerequisites
 

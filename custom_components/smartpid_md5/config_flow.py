@@ -20,7 +20,6 @@ from .const import (
     CONF_CH1_MIN,
     CONF_CH2_MAX,
     CONF_CH2_MIN,
-    CONF_CLEANUP,
     CONF_DEVICE_ID,
     CONF_NAME,
     DEFAULT_CH1_MAX,
@@ -72,7 +71,10 @@ class SmartpidConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class SmartpidOptionsFlow(OptionsFlow):
-    """Expose the setpoint limits and the discovery-topic cleanup toggle.
+    """Expose the per-channel setpoint limits.
+
+    (Discovery-topic cleanup is no longer an option here; it is an explicit
+    one-shot button entity — see ``button.py``.)
 
     Canonical current pattern: no custom ``__init__``; the framework provides
     ``self.config_entry`` automatically.
@@ -105,9 +107,6 @@ class SmartpidOptionsFlow(OptionsFlow):
                 vol.Optional(
                     CONF_CH2_MAX, default=opts.get(CONF_CH2_MAX, DEFAULT_CH2_MAX)
                 ): vol.Coerce(float),
-                vol.Optional(
-                    CONF_CLEANUP, default=opts.get(CONF_CLEANUP, False)
-                ): bool,
             }
         )
         return self.async_show_form(

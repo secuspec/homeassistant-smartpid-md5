@@ -58,11 +58,13 @@ def build_discovery_messages(
     it bounds the setpoint number entity (and thus the dashboard slider + box).
     When omitted the documented per-channel maxima are used.
 
-    Note on ``value_template`` defaults: the PRO ``dynamic/CHx`` payload has two
+    Note on ``value_template`` guards: the PRO ``dynamic/CHx`` payload has two
     shapes. In *monitor* mode only ``temp``/``unit``/``runmode`` are present; the
     fields ``SP``/``mode``/``pwm``/``countdown``/``countup`` appear only in *run*
-    mode. Every optional field is therefore guarded with ``default('')`` so the
-    entity is not fed a stray value when the field is absent.
+    mode. Numeric entities (``device_class``/``state_class``) resolve an absent
+    field to ``none`` — ``{{ value_json.x if value_json.x is defined else none }}``
+    — which HA reads as *unknown*; an empty string would be an invalid numeric
+    state and get logged and rejected. Text-only fields keep ``default('')``.
 
     Every entity also carries a deterministic ``object_id`` (``smartpid_<slug>``)
     so the bundled dashboard can reference stable entity_ids.
@@ -95,7 +97,7 @@ def build_discovery_messages(
         add("sensor", f"{cl}_temp", {
             "name": f"{ch} Temperature",
             "state_topic": dyn,
-            "value_template": "{{ value_json.temp | default('') }}",
+            "value_template": "{{ value_json.temp if value_json.temp is defined else none }}",
             "unit_of_measurement": "°C",
             "device_class": "temperature",
             "state_class": "measurement",
@@ -103,14 +105,14 @@ def build_discovery_messages(
         add("sensor", f"{cl}_setpoint_state", {
             "name": f"{ch} Setpoint (readback)",
             "state_topic": dyn,
-            "value_template": "{{ value_json.SP | default('') }}",
+            "value_template": "{{ value_json.SP if value_json.SP is defined else none }}",
             "unit_of_measurement": "°C",
             "device_class": "temperature",
         })
         add("sensor", f"{cl}_pwm", {
             "name": f"{ch} Power",
             "state_topic": dyn,
-            "value_template": "{{ value_json.pwm | default('') }}",
+            "value_template": "{{ value_json.pwm if value_json.pwm is defined else none }}",
             "unit_of_measurement": "%",
             "state_class": "measurement",
             "icon": "mdi:fire",
@@ -130,21 +132,21 @@ def build_discovery_messages(
         add("sensor", f"{cl}_countdown", {
             "name": f"{ch} Countdown",
             "state_topic": dyn,
-            "value_template": "{{ value_json.countdown | default('') }}",
+            "value_template": "{{ value_json.countdown if value_json.countdown is defined else none }}",
             "unit_of_measurement": "s",
             "device_class": "duration",
         })
         add("sensor", f"{cl}_countup", {
             "name": f"{ch} Countup",
             "state_topic": dyn,
-            "value_template": "{{ value_json.countup | default('') }}",
+            "value_template": "{{ value_json.countup if value_json.countup is defined else none }}",
             "unit_of_measurement": "s",
             "device_class": "duration",
         })
         add("number", f"{cl}_setpoint", {
             "name": f"{ch} Setpoint",
             "state_topic": dyn,
-            "value_template": "{{ value_json.SP | default('') }}",
+            "value_template": "{{ value_json.SP if value_json.SP is defined else none }}",
             "command_topic": cmd_topic,
             "command_template": '{"' + ch + ' SP": {{ value }} }',
             "min": ch_min,
